@@ -13,7 +13,6 @@ int minenum = 10;
 int[][] array = new int[xnum][ynum]; //0 is not 1, 1 is 1
 int[][] m_array = new int[xnum][ynum];
 
-
 void setup(){
   loop();
   clear();
@@ -96,35 +95,40 @@ void open(){
   }
 }
 
-int search(int x,int y){
+void search(int sx,int sy){
   int check=0;
   int i,j;
   int ix,iy;
   for(i=0;i<3;i++){ 
     for(j=0;j<3;j++){
-      ix=x-1+i; iy=y-1+j;
+      ix=sx-1+i; iy=sy-1+j;
+      if(ix<0)ix=0;else if(ix>9)ix=9;//limit x value in 0~9
+      if(iy<0)iy=0;else if(iy>9)iy=9;//limit y value in 0~9
       if(m_array[ix][iy]==11)check++;
     }
   }
-  if(check!=0)array[x][y]=check;
-  
+  ix=0; iy=0;
+  m_array[sx][sy]=1;
+  if(check!=0)array[sx][sy]=check;
   else{
-    for(i=0;i<3;i++){ 
+    array[sx][sy]=10;
+    for(i=0;i<3;i++){
       for(j=0;j<3;j++){
-        search(x-1+i,y-1+j);
+        ix=sx-1+i; iy=sy-1+j;
+        if(ix<0)ix=0;else if(ix>9)ix=9;//limit x value in 0~9
+        if(iy<0)iy=0;else if(iy>9)iy=9;//limit y value in 0~9
+        if(m_array[ix][iy]!=1)search(ix,iy);
       }
     }
   }
-  return check;
 }
-
 
 void gameover(){
   int i,j;
   for(i=0;i<xnum;i++){ //show position of all the mines
     for(j=0;j<ynum;j++){
-      if(m_array[i+1][j+1]==11){
-        array[i+1][j+1]=11; 
+      if(m_array[i][j]==11){
+        array[i][j]=11; 
       }
     }
   }
