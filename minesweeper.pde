@@ -3,6 +3,7 @@ String[] imageNames = {"def.png","1.png","2.png","3.png","4.png","5.png","6.png"
 PImage[] images = new PImage[imageNames.length]; //def=0 flag=9 space=10 mine=11 red=12
 int x = 0, y = 0, px, py;                        //smile1=13 s2=14 s3=15 s4=16 pressed=17 
 boolean pressing = false;                        //top l18 r19 mid l20 r21 bot l22 r23 v-line24 h-line25
+boolean gameover = false;
 int msize = 40; //16
 int ssize = msize*26/16; //size of smile
 int smile = 13; // mode of smile (13~17)
@@ -30,6 +31,7 @@ void draw(){ //update
     mousePos(); //get position of mouse
     click();    //check click
     open();     //open block
+    status();
 }
 
 void drawGame(){
@@ -100,6 +102,7 @@ void click(){
     if(mousePressed){
       if(mouseButton == LEFT){ //mouse left click
         if(array[x][y]==0){ //only def block is click-able
+          smile = 14;
           if(!pressing){ //if first click/ not pressed
             px=x; py=y;
             pressing = true; //pressed
@@ -118,7 +121,9 @@ void click(){
           }pressing = true;
         }
       }
-    }else pressing = false; //not pressing
+    }
+    else pressing = false; //not pressing
+    smile = 13;
   }
 }
 
@@ -126,7 +131,7 @@ void open(){
   if(!pressing){
     if(array[x][y]==10){
       if(m_array[x][y]==11){//if mine pressed - gameover
-        gameover();
+        gameover = true;
       }else{
         search(x,y);
       }
@@ -158,19 +163,35 @@ void search(int sx,int sy){
   }
 }
 
-void gameover(){
+void status(){
   int i,j;
-  for(i=0;i<xnum;i++){ //show position of all the mines
-    for(j=0;j<ynum;j++){
-      if(m_array[i][j]==11){
-        array[i][j]=11; 
+  boolean win = true;
+  for(i=0;i<xnum;i++){
+    for(j=0;j<ynum;j++)
+    {
+      if(m_array[i][j]==0){
+         win = false;
       }
     }
   }
-  array[x][y]=12;
-  drawGame();
-  noLoop();
-  
+  if(win){
+    smile = 16;
+    drawGame();
+    noLoop();
+  }else if(gameover){
+    smile = 15;
+    for(i=0;i<xnum;i++){ //show position of all the mines
+      for(j=0;j<ynum;j++){
+        if(m_array[i][j]==11){
+          array[i][j]=11; 
+        }
+      }
+    }
+    array[x][y]=12; //change color of changed mine to red
+    drawGame();
+    gameover = false;
+    noLoop();
+  }
 }
 
 void loadImages(){
