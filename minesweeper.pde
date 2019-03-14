@@ -8,19 +8,19 @@ int msize = 40; //16
 int ssize = msize*26/16; //size of smile
 int smile = 13; // mode of smile (13~17)
 int outline = 20; // size of outline
-int xnum = 10;
-int ynum = 10;
+int xnum = 16; //ez 10 inter 16 exp 30
+int ynum = 16; //ez 10 inter 16 exp 16
 int xadj = 20;
 int yadj = 120;
-int minenum = 10;
-int[][] array = new int[xnum][ynum]; //0 is not 1, 1 is 1
+int minenum = 40; //ez 10 inter 40 exp 99
+int[][] array = new int[xnum][ynum];
 int[][] m_array = new int[xnum][ynum];
 
 void setup(){
   loop();
   clear();
   background(192,192,192);
-  size(440,540);
+  size(680,780); //ez 440,540 inter 680,780 exp 1240,780
   loadImages();
   drawOutline();
   reset();
@@ -69,7 +69,7 @@ void reset(){
   for(i=0;i<xnum;i++){ //reset array
     for(j=0;j<ynum;j++){
       array[i][j] = 0; //def
-      image(images[0],i*40+xadj,j*40+yadj,msize,msize);
+      image(images[0],i*msize+xadj,j*msize+yadj,msize,msize);
     }
   }
   for(i=0;i<xnum;i++){ //reset m_array
@@ -146,7 +146,7 @@ void search(int sx,int sy){
   for(i=0;i<3;i++){ 
     for(j=0;j<3;j++){
       ix=sx-1+i; iy=sy-1+j;
-      if(ix>=0&&ix<=9&&iy>=0&&iy<=9&&m_array[ix][iy]==11)check++; //if x,y is in limit & if mine
+      if(ix>=0&&ix<=xnum-1&&iy>=0&&iy<=ynum-1&&m_array[ix][iy]==11)check++; //if x,y is in limit & if mine
     }
   }
   ix=0; iy=0;
@@ -157,7 +157,7 @@ void search(int sx,int sy){
     for(i=0;i<3;i++){
       for(j=0;j<3;j++){
         ix=sx-1+i; iy=sy-1+j;
-        if(ix>=0&&ix<=9&&iy>=0&&iy<=9&&m_array[ix][iy]!=1)search(ix,iy);
+        if(ix>=0&&ix<=xnum-1&&iy>=0&&iy<=ynum-1&&m_array[ix][iy]!=1)search(ix,iy);
       }
     }
   }
