@@ -3,16 +3,17 @@ String[] imageNames = {"def.png","1.png","2.png","3.png","4.png","5.png","6.png"
 PImage[] images = new PImage[imageNames.length]; //def=0 flag=9 space=10 mine=11 red=12
 int x = 0, y = 0, px, py;                        //smile1=13 s2=14 s3=15 s4=16 pressed=17 
 boolean pressing = false;                        //top l18 r19 mid l20 r21 bot l22 r23 v-line24 h-line25
-boolean gameover = false;
-int msize = 40; //16
-int ssize = msize*26/16; //size of smile
+boolean gameend = false;
+boolean mousein = false;
+int msize = 40; //real size - 16 pixel
+int ssize = msize*26/16; //size of smile - 26 pixel
 int smile = 13; // mode of smile (13~17)
 int outline = 20; // size of outline
-int xnum = 16; //ez 10 inter 16 exp 30
-int ynum = 16; //ez 10 inter 16 exp 16
+int xnum = 10; //ez 10 inter 16 exp 30
+int ynum = 10; //ez 10 inter 16 exp 16
 int xadj = 20;
 int yadj = 120;
-int minenum = 40; //ez 10 inter 40 exp 99
+int minenum = 10; //ez 10 inter 40 exp 99
 int[][] array = new int[xnum][ynum];
 int[][] m_array = new int[xnum][ynum];
 
@@ -20,7 +21,7 @@ void setup(){
   loop();
   clear();
   background(192,192,192);
-  size(680,780); //ez 440,540 inter 680,780 exp 1240,780
+  size(440,540); //ez 440,540 inter 680,780 exp 1240,780
   loadImages();
   drawOutline();
   reset();
@@ -29,14 +30,34 @@ void setup(){
 void draw(){ //update
     drawGame(); //draw game
     mousePos(); //get position of mouse
-    click();    //check click
-    open();     //open block
-    status();
+    if(!gameend){
+      click();  //click check
+      open();   //reveal block
+      status(); // check status - win/gameover
+    }
+    smile(); //smile - reset button
 }
 
-void drawGame(){
+void smile(){ //reset button
+  if((width/2)-(ssize/2)<mouseX&&mouseX<(width/2)+(ssize/2)&&(yadj/2)-(ssize/2)<mouseY&&mouseY<(yadj/2)+(ssize/2)){
+    if(mousePressed){
+      smile = 17 ;
+      mousein = true;
+    }else if(mousein){
+      smile = 13;
+      mousein = false;
+      gameend = false;
+      reset();
+    }
+  }else if(mousePressed && mousein){
+    smile = 13;
+    mousein = false;
+  }
+  image(images[smile],(width/2)-(ssize/2),(yadj/2)-(ssize/2),ssize,ssize); // draw smile
+}
+
+void drawGame(){ // draw mines
   int i,j;
-  image(images[smile],(width/2)-(ssize/2),(yadj/2)-(ssize/2),ssize,ssize);
   for(i=0;i<xnum;i++){ 
     for(j=0;j<ynum;j++){
       image(images[array[i][j]],i*msize+xadj,j*msize+yadj,msize,msize);
@@ -111,7 +132,7 @@ void click(){
              array[px][py] = 0;
              px=x; py=y;
           }array[x][y] = 10;
-        }else if(array[x][y]==9) array[x][y]=10; //if pressed flag --> pressed
+        }
       }else{ //mouse right click
         if(!pressing){// if first click/ not pressed
           if(array[x][y]==0){// if def block --> flag
@@ -121,9 +142,10 @@ void click(){
           }pressing = true;
         }
       }
+    }else{
+      pressing = false; //not pressing
+      smile = 13;
     }
-    else pressing = false; //not pressing
-    smile = 13;
   }
 }
 
@@ -131,7 +153,7 @@ void open(){
   if(!pressing){
     if(array[x][y]==10){
       if(m_array[x][y]==11){//if mine pressed - gameover
-        gameover = true;
+        gameend = true;
       }else{
         search(x,y);
       }
@@ -174,23 +196,19 @@ void status(){
       }
     }
   }
-  if(win){
+  if(win){ //WIN!!!
     smile = 16;
-    drawGame();
-    noLoop();
-  }else if(gameover){
+    gameend = true;
+  }else if(gameend){ //GAMEOVER :(
     smile = 15;
     for(i=0;i<xnum;i++){ //show position of all the mines
       for(j=0;j<ynum;j++){
-        if(m_array[i][j]==11){
+        if(m_array[i][j]==11&&array[i][j]!=9){
           array[i][j]=11; 
         }
       }
     }
-    array[x][y]=12; //change color of changed mine to red
-    drawGame();
-    gameover = false;
-    noLoop();
+    array[px][py]=12; //change color of changed mine to red
   }
 }
 
